@@ -48,6 +48,15 @@ A namespace, often referred as a "space", is an owned resource that can be share
 
 A blob is a fixed size byte array addressed by the [multihash]. Usually blobs are used to represent set of IPLD blocks at different byte ranges.
 
+### Blob Lifecycle
+
+Within a space, a blob is in one of two states:
+
+- **Allocated** — storage reserved but the blob not yet committed: after [Allocate Blob] and before [Accept Blob]. Content may have been uploaded via HTTP `PUT` without having been accepted yet. An allocated blob is abandoned with [Abort Blob], and the allocation expires if the blob is never accepted.
+- **Accepted** — content delivered, verified and registered to the space: after [Accept Blob]. An accepted blob is removed with [Remove Blob].
+
+Storage nodes track allocations and acceptances per `(digest, space)` pair. Removal releases only a single space's claim — the blob bytes are physically deleted only once no space holds any claim on the digest, allowing safe content-addressed deduplication across spaces.
+
 ### UCAN Primitives
 
 This specification builds on the [UCAN] suite of specifications, in particular:
@@ -424,42 +433,6 @@ The agent that invoked the [add blob] capability is expected to perform this tas
 
 ### Put Blob Invocation
 
-#### Put Blob Invocation Example
-
-```jsonc
-{ // "/": "bafy..put"
-  // Ed25519 key derived from the blob multihash
-  "iss": "did:key:zMh...der",
-  "aud": "did:key:zMh...der",
-  "sub": "did:key:zMh...der",
-  "cmd": "/http/put",
-  "args": {
-    // body of the http request
-    "body": {
-      // multihash of the blob as byte array
-      "digest": { "/": { "bytes": "mEi...sfKg" } },
-      "size": 2097152
-    },
-    // upload destination, resolved from the allocation result
-    "destination": {
-      "await/ok": { "/": "bafy..alloc" }
-    }
-  },
-  "meta": {
-    // archive of the subject principal's keys
-    "keys": {
-      "id": "did:key:zMh...der",
-      "keys": {
-        "did:key:zMh...der": { "/": { "bytes": "mEy...priv" } }
-      }
-    }
-  },
-  "prf": [],
-  "nonce": { "/": { "bytes": "cHV0" } },
-  "exp": 1735689600
-}
-```
-
 #### Put Blob Arguments Schema
 
 ```ipldsch
@@ -500,6 +473,42 @@ The invocation `meta` field MUST contain a `keys` object with an `id` field set 
 The `destination` argument MUST be set to an [await][promise] on the result of the [Allocate Blob] task. It resolves to the `BlobAddress` — the request MUST be sent to the address `url` with the address `headers` (if any) set on the request.
 
 The `body` argument MUST be an object with `digest` and `size` fields describing the content of the request body.
+
+#### Put Blob Invocation Example
+
+```jsonc
+{ // "/": "bafy..put"
+  // Ed25519 key derived from the blob multihash
+  "iss": "did:key:zMh...der",
+  "aud": "did:key:zMh...der",
+  "sub": "did:key:zMh...der",
+  "cmd": "/http/put",
+  "args": {
+    // body of the http request
+    "body": {
+      // multihash of the blob as byte array
+      "digest": { "/": { "bytes": "mEi...sfKg" } },
+      "size": 2097152
+    },
+    // upload destination, resolved from the allocation result
+    "destination": {
+      "await/ok": { "/": "bafy..alloc" }
+    }
+  },
+  "meta": {
+    // archive of the subject principal's keys
+    "keys": {
+      "id": "did:key:zMh...der",
+      "keys": {
+        "did:key:zMh...der": { "/": { "bytes": "mEy...priv" } }
+      }
+    }
+  },
+  "prf": [],
+  "nonce": { "/": { "bytes": "cHV0" } },
+  "exp": 1735689600
+}
+```
 
 ### Put Blob Receipt
 
@@ -831,9 +840,9 @@ An example receipt for the above `/blob/list` invocation:
 
 ## Remove Blob
 
-An authorized agent MAY invoke the `/blob/remove` capability to release the subject space's claim on an accepted blob.
+An authorized agent MAY invoke the `/blob/remove` capability on the [space] subject to release the space's claim on an [accepted][blob lifecycle] blob.
 
-Removal releases only the invoking space's claim: storage nodes track blobs per `(digest, space)` pair, and content is physically deleted only once no space claims the digest at all.
+Removal releases only the invoking space's claim: content is physically deleted from storage nodes only once no space claims the digest at all. An [allocated][blob lifecycle] blob — one that was added but never accepted — is abandoned with [Abort Blob] instead.
 
 ### Remove Blob Invocation
 
@@ -880,6 +889,12 @@ Shown invocation example illustrates Alice requesting to remove a blob stored on
 
 ### Remove Blob Receipt
 
+Executing the invocation, the upload service MUST recover every storage node holding the blob — including replicas — invoke [Release Blob] on each of them, and deregister the blob from the space last, so that the records needed to recover the storage nodes survive for a retry should forwarding fail.
+
+Storage nodes MAY be recovered from the invocation log: the receipt of the [Add Blob] task that registered the blob awaits the [Accept Blob] task, whose subject is the storage node holding the blob.
+
+Release forwarding is best-effort: a failed [Release Blob] MUST NOT fail the removal. Release is idempotent, so a missed storage node MAY be reconciled by retries or provider hygiene processes.
+
 Removal MUST be idempotent: removing a blob that is unknown or already removed MUST succeed.
 
 #### Remove Blob Receipt Schema
@@ -902,14 +917,268 @@ type RemoveOK struct{}
 
 </details>
 
+## Release Blob
+
+The upload service MAY invoke the `/blob/release` capability on a storage node subject to drop a space's claim on an [accepted][blob lifecycle] blob. It is the translation of a [Remove Blob] invocation to a storage node holding the blob.
+
+The storage node is the subject of this capability: a storage node delegates it to the upload service when it joins the network. The space releasing its claim travels in the arguments.
+
+### Release Blob Invocation
+
+#### Release Blob Arguments Schema
+
+```ipldsch
+type ReleaseArguments struct {
+  space  String # DID of the space releasing its claim
+  digest Bytes  # multihash digest of the blob
+  cause  Link   # /blob/remove task this release translates
+}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type ReleaseArguments struct {
+	Space  did.DID             `cborgen:"space"`
+	Digest multihash.Multihash `cborgen:"digest"`
+	Cause  cid.Cid             `cborgen:"cause"`
+}
+```
+
+</details>
+
+The `args.space` field MUST be set to the [DID] of the space releasing its claim. The space is explicit — matching [Allocate Blob] and [Accept Blob] — because the invocation subject is the storage node.
+
+The `args.digest` field MUST be a [multihash] digest of the blob payload bytes.
+
+The `args.cause` field MUST be set to the [task][UCAN task] link of the [Remove Blob] task this release translates. The linked invocation MUST be transmitted in the request [container][UCAN container] — it proves to the storage node that the release originates from the space.
+
+#### Release Blob Invocation Example
+
+```jsonc
+{ // "/": "bafy..release"
+  "iss": "did:web:upload.example.com",
+  "aud": "did:key:zStorageNode",
+  "sub": "did:key:zStorageNode",
+  "cmd": "/blob/release",
+  "args": {
+    // space releasing its claim
+    "space": "did:key:zAliceSpace",
+    // multihash of the blob as byte array
+    "digest": { "/": { "bytes": "mEi...sfKg" } },
+    // task that caused this invocation
+    "cause": { "/": "bafy..remove" }
+  },
+  "prf": [{ "/": "bafy..dlgStorageNode" }],
+  "nonce": { "/": { "bytes": "cmVsZWFzZQ" } },
+  "exp": 1735689600
+}
+```
+
+### Release Blob Receipt
+
+Invocation MUST fail if the invocation linked from `args.cause` is not present in the request [container][UCAN container] _(error name `UnknownCause`)_. Invocation MUST fail if the linked invocation is not a [Remove Blob] task whose subject equals `args.space` and whose digest equals `args.digest` _(error name `InvalidCause`)_.
+
+The storage node MUST drop the space's allocation, acceptance and location claim for the blob. Blob bytes MUST be retained while any other space holds a claim on the digest. Once no claims remain the bytes MAY be deleted. Deletion SHOULD be performed asynchronously, re-verifying that no claims exist — and retiring the blob from the node's proof of data possession dataset — before any destructive step is taken.
+
+Release MUST be idempotent: releasing a blob the space holds no claim on MUST succeed.
+
+#### Release Blob Receipt Schema
+
+```ipldsch
+type ReleaseResult union {
+  | ReleaseOK "ok"
+  | Error     "error"
+} representation keyed
+
+type ReleaseOK struct {}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type ReleaseOK struct{}
+```
+
+</details>
+
+## Abort Blob
+
+An authorized agent MAY invoke the `/blob/abort` capability on the [space] subject to abandon an in-flight upload — an [allocated][blob lifecycle] blob that was added but never accepted.
+
+### Abort Blob Invocation
+
+#### Abort Blob Arguments Schema
+
+```ipldsch
+type AbortArguments struct {
+  digest Bytes # multihash digest of the blob to abort
+  cause  Link  # /blob/add task the upload originated from
+}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type AbortArguments struct {
+	Digest multihash.Multihash `cborgen:"digest"`
+	Cause  cid.Cid             `cborgen:"cause"`
+}
+```
+
+</details>
+
+The `args.digest` field MUST be a [multihash] digest of the blob payload bytes.
+
+The `args.cause` field MUST be set to the [task][UCAN task] link of the [Add Blob] task the upload originated from. It is REQUIRED: an allocated blob has no registration to look the storage node up by, so the upload service recovers it from the linked task — the [Add Blob] receipt awaits the [Accept Blob] task, whose subject is the storage node holding the allocation.
+
+#### Abort Blob Invocation Example
+
+Shown invocation example illustrates Alice abandoning an upload to their space:
+
+```jsonc
+{ // "/": "bafy..abort"
+  "iss": "did:key:zAlice",
+  "aud": "did:web:upload.example.com",
+  "sub": "did:key:zAliceSpace",
+  "cmd": "/blob/abort",
+  "args": {
+    // multihash of the blob as byte array
+    "digest": { "/": { "bytes": "mEi...sfKg" } },
+    // the /blob/add task the upload originated from
+    "cause": { "/": "bafy..add" }
+  },
+  "prf": [{ "/": "bafy..dlgAliceSpace" }],
+  "nonce": { "/": { "bytes": "YWJvcnQ" } },
+  "exp": 1735689600
+}
+```
+
+### Abort Blob Receipt
+
+Invocation MUST fail if `args.cause` is missing or does not link to an [Add Blob] task _(error name `MissingCause`)_. Invocation MUST fail if the space has already accepted the blob _(error name `BlobAccepted`, surfaced from [Reject Blob])_ — an accepted blob is removed with [Remove Blob] instead.
+
+Executing the invocation, the upload service MUST invoke [Reject Blob] on the storage node recovered from the `args.cause` task. No other upload service state changes: an allocated blob is not registered, since registration only happens at acceptance.
+
+Abort MUST be idempotent: aborting a blob that is unknown or already rejected MUST succeed.
+
+#### Abort Blob Receipt Schema
+
+```ipldsch
+type AbortResult union {
+  | AbortOK "ok"
+  | Error   "error"
+} representation keyed
+
+type AbortOK struct {}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type AbortOK struct{}
+```
+
+</details>
+
+## Reject Blob
+
+The upload service MAY invoke the `/blob/reject` capability on a storage node subject to drop a space's [allocation][blob lifecycle] for a blob that was never accepted. It is the translation of an [Abort Blob] invocation to the storage node holding the allocation.
+
+The storage node is the subject of this capability: a storage node delegates it to the upload service when it joins the network. The space whose allocation is dropped travels in the arguments.
+
+### Reject Blob Invocation
+
+#### Reject Blob Arguments Schema
+
+```ipldsch
+type RejectArguments struct {
+  space  String # DID of the space whose allocation is dropped
+  digest Bytes  # multihash digest of the blob to reject
+}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type RejectArguments struct {
+	Space  did.DID             `cborgen:"space"`
+	Digest multihash.Multihash `cborgen:"digest"`
+}
+```
+
+</details>
+
+The `args.space` field MUST be set to the [DID] of the space whose allocation is dropped.
+
+The `args.digest` field MUST be a [multihash] digest of the blob payload bytes.
+
+#### Reject Blob Invocation Example
+
+```jsonc
+{ // "/": "bafy..reject"
+  "iss": "did:web:upload.example.com",
+  "aud": "did:key:zStorageNode",
+  "sub": "did:key:zStorageNode",
+  "cmd": "/blob/reject",
+  "args": {
+    // space whose allocation is dropped
+    "space": "did:key:zAliceSpace",
+    // multihash of the blob as byte array
+    "digest": { "/": { "bytes": "mEi...sfKg" } }
+  },
+  "prf": [{ "/": "bafy..dlgStorageNode" }],
+  "nonce": { "/": { "bytes": "cmVqZWN0" } },
+  "exp": 1735689600
+}
+```
+
+### Reject Blob Receipt
+
+Invocation MUST fail if `args.space` has accepted the blob _(error name `BlobAccepted`)_ — an accepted blob is released with [Release Blob] instead. The guard is scoped to the invoking space: another space's acceptance of the same digest MUST NOT block the rejection, since that space still claims the bytes and will release them separately.
+
+The storage node MUST drop the space's allocation for the blob. Received bytes MAY be deleted once no space holds an allocation or acceptance for the digest, subject to the same asynchronous deletion safeguards as [Release Blob].
+
+Reject MUST be idempotent: rejecting a blob the space holds no allocation for MUST succeed.
+
+#### Reject Blob Receipt Schema
+
+```ipldsch
+type RejectResult union {
+  | RejectOK "ok"
+  | Error    "error"
+} representation keyed
+
+type RejectOK struct {}
+```
+
+<details>
+<summary>Go syntax</summary>
+
+```go
+type RejectOK struct{}
+```
+
+</details>
+
 [multihash]:https://github.com/multiformats/multihash
 [IPLD Schema]:https://ipld.io/docs/schemas/
 [multicodec]:https://github.com/multiformats/multicodec
 [space]:#space
 [subject]:#roles
+[blob lifecycle]:#blob-lifecycle
 [location commitment]:#location-commitment
 [add blob]:#add-blob
-[add blob task container]:#add-blob-task-container
+[Remove Blob]:#remove-blob
+[Release Blob]:#release-blob
+[Abort Blob]:#abort-blob
+[Reject Blob]:#reject-blob
+[add blob task container]:#add-blob-promised-tasks
 [Put Blob]:#put-blob
 [put blob receipt]:#put-blob-receipt
 [Allocate Blob]:#allocate-blob
