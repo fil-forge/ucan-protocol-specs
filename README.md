@@ -4,9 +4,14 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 
 ## Overview
 
+* [Attested Authority](./attestation.md)
 * [Blob Protocol](./blob.md)
 * [did:mailto DID Method](./did-mailto.md)
+* [HTTP Header UCAN Invocation](./http-header-ucan-invocation.md)
+* [Index Protocol](./index.md)
 * [PDP Protocol](./pdp.md)
+* [Replication Protocol](./replication.md)
+* [Retrieval Protocol](./retrieval.md)
 * [UCAN Extensions](./ucan.md)
 
 ## Status indicators
