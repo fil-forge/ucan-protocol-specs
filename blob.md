@@ -629,7 +629,7 @@ The `out.ok.site` field MUST be set to the link of the [location commitment] inv
 
 The [location commitment] invocation MUST be transmitted in the [container][UCAN container] alongside the accept blob receipt.
 
-The `out.ok.pdp` field MUST be set to an [await][promise] on the result of a `/pdp/accept` task, which completes when the blob has been aggregated and the aggregate root added to the storage node's proof of data possession dataset. The `/pdp/accept` invocation MUST be transmitted in the [container][UCAN container] alongside the accept blob receipt. Proof of data possession is described in a separate specification.
+The `out.ok.pdp` field MUST be set to an [await][promise] on the result of a [`/pdp/accept`][PDP accept] task, which completes when the blob has been aggregated and the aggregate root added to the storage node's proof of data possession dataset. The `/pdp/accept` invocation MUST be transmitted in the [container][UCAN container] alongside the accept blob receipt. Proof of data possession is described in the [PDP protocol].
 
 ## Location Commitment
 
@@ -980,7 +980,7 @@ The `args.cause` field MUST be set to the [task][UCAN task] link of the [Remove 
 
 Invocation MUST fail if the invocation linked from `args.cause` is not present in the request [container][UCAN container] _(error name `UnknownCause`)_. Invocation MUST fail if the linked invocation is not a [Remove Blob] task whose subject equals `args.space` and whose digest equals `args.digest` _(error name `InvalidCause`)_.
 
-The storage node MUST drop the space's allocation, acceptance and location claim for the blob. Blob bytes MUST be retained while any other space holds a claim on the digest. Once no claims remain the bytes MAY be deleted. Deletion SHOULD be performed asynchronously, re-verifying that no claims exist — and retiring the blob from the node's proof of data possession dataset — before any destructive step is taken.
+The storage node MUST drop the space's allocation, acceptance and location claim for the blob. Blob bytes MUST be retained while any other space holds a claim on the digest. Once no claims remain the bytes MAY be deleted. Deletion SHOULD be performed asynchronously, re-verifying that no claims exist — and retiring the blob from the node's [proof of data possession][PDP protocol] dataset — before any destructive step is taken.
 
 Release MUST be idempotent: releasing a blob the space holds no claim on MUST succeed.
 
@@ -1189,6 +1189,8 @@ type RejectOK struct{}
 [Ed25519]:https://en.wikipedia.org/wiki/EdDSA#Ed25519
 [UCAN conclusion]:./ucan.md#conclusion
 [receipt]:./ucan.md#receipt
+[PDP protocol]:./pdp.md
+[PDP accept]:./pdp.md#pdp-accept
 [principal]:https://github.com/ucan-wg/spec#principals
 [UCAN]:https://github.com/ucan-wg/spec
 [UCAN delegation]:https://github.com/ucan-wg/delegation
