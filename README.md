@@ -12,6 +12,7 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 * [PDP Protocol](./pdp.md)
 * [Replication Protocol](./replication.md)
 * [Retrieval Protocol](./retrieval.md)
+* [Revocation Checking](./revocation.md)
 * [UCAN Extensions](./ucan.md)
 
 ## Status indicators
