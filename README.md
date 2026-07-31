@@ -14,6 +14,7 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 * [PDP Protocol](./pdp.md) — allows a storage node to prove possession of stored blobs using cryptographic merkle tree commitments.
 * [Replication Protocol](./replication.md) — enables distributed storage of blobs across multiple nodes in the network after initial upload.
 * [Retrieval Protocol](./retrieval.md) — defines UCAN capabilities for authorizing retrieval of resources, served in the same HTTP request they are authorized in.
+* [S3 Tenant Management](./s3.md) — how tenants of an S3 compatible gateway are managed, and how S3 style credentials map to UCAN authorizations.
 * [UCAN Extensions](./ucan.md) — protocol extensions to the core `/ucan` namespace that we hope to standardize in the core UCAN specifications.
 * [Upload Protocol](./upload.md) — allows authorized agents to manage the list of top level content entries — "uploads" — in a space.
 
