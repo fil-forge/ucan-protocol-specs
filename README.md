@@ -4,6 +4,9 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 
 ## Overview
 
+* [Blob Protocol](./blob.md)
+* [UCAN Extensions](./ucan.md)
+
 ## Status indicators
 
 We use the following label system to identify the status of each spec:
