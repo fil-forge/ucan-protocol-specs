@@ -4,18 +4,19 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 
 ## Overview
 
-* [Attested Authority](./attestation.md)
-* [Blob Protocol](./blob.md)
-* [did:mailto DID Method](./did-mailto.md)
-* [Egress Tracking Protocol](./egress-tracking.md)
-* [HTTP Header UCAN Invocation](./http-header-ucan-invocation.md)
-* [Index Protocol](./index.md)
-* [PDP Protocol](./pdp.md)
-* [Replication Protocol](./replication.md)
-* [Retrieval Protocol](./retrieval.md)
-* [UCAN Extensions](./ucan.md)
+* [Attested Authority](./attestation.md) — a scheme for using externally verified identities (email, OAuth, etc.) as UCAN issuers via attestations from a trusted authority.
+* [Blob Protocol](./blob.md) — allows authorized agents to store arbitrary content blobs with a storage node.
+* [did:mailto DID Method](./did-mailto.md) — a DID method for identifying principals by email address, with no central source of truth.
+* [Egress Tracking Protocol](./egress-tracking.md) — allows storage nodes to record the data they serve, so egress fees can be calculated.
+* [HTTP Header UCAN Invocation](./http-header-ucan-invocation.md) — sends UCAN containers in HTTP headers, leaving the request/response body free for other purposes.
+* [Index Protocol](./index.md) — allows authorized agents to publish verifiable claims about content-addressable data to IPNI, making it publicly queryable.
+* [PDP Protocol](./pdp.md) — allows a storage node to prove possession of stored blobs using cryptographic merkle tree commitments.
+* [Replication Protocol](./replication.md) — enables distributed storage of blobs across multiple nodes in the network after initial upload.
+* [Retrieval Protocol](./retrieval.md) — defines UCAN capabilities for authorizing retrieval of resources, served in the same HTTP request they are authorized in.
+* [UCAN Extensions](./ucan.md) — protocol extensions to the core `/ucan` namespace that we hope to standardize in the core UCAN specifications.
+* [Upload Protocol](./upload.md) — allows authorized agents to manage the list of top level content entries — "uploads" — in a space.
 
-## Status indicators
+## Status Indicators
 
 We use the following label system to identify the status of each spec:
 
