@@ -44,7 +44,7 @@ An _authority_ is a trusted [principal] — for example the upload service — t
 
 ### Attestation
 
-An _attestation_ is a signed statement from an [authority] verifying a signature payload on behalf of a `did:mailto` principal. It takes the place of a signature on UCANs issued by the principal. The attestation mechanism is defined in a separate specification.
+An _attestation_ is a signed statement from an [authority] verifying a signature payload on behalf of a `did:mailto` principal. It takes the place of a signature on UCANs issued by the principal. The attestation mechanism is defined in the [attested authority] specification.
 
 ## The `did:mailto` Format
 
@@ -139,5 +139,6 @@ This DID method does not support updating the DID document.
 [rfc2181]: https://www.rfc-editor.org/rfc/rfc2181
 [attestation]: #attestation
 [authority]: #authority
+[attested authority]: ./attestation.md
 [principal]: https://github.com/ucan-wg/spec#principals
 [UCAN revocation]: https://github.com/ucan-wg/revocation
