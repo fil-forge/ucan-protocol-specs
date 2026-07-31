@@ -4,7 +4,7 @@
 
 ## Authors
 
-- [Irakli Gozalishvili](https://github.com/Gozala), [DAG House](https://dag.house/)
+- [Irakli Gozalishvili](https://github.com/Gozala)
 
 ## Editors
 

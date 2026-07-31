@@ -4,7 +4,7 @@
 
 ## Authors
 
-- [Alan Shaw](https://github.com/alanshaw), [Storacha](https://storacha.network/)
+- [Alan Shaw](https://github.com/alanshaw)
 
 ## Language
 

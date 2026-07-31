@@ -4,7 +4,7 @@
 
 ## Authors
 
-- [Vicente Olmedo](https://github.com/volmedo), [Storacha Network](https://storacha.network/)
+- [Vicente Olmedo](https://github.com/volmedo)
 
 ## Language
 

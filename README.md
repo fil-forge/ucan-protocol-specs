@@ -4,6 +4,7 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 
 ## Overview
 
+* [Access Protocol](./access.md) — governs how agents request capabilities from accounts, verified via email, and how delegations are delivered to their audience.
 * [Attested Authority](./attestation.md) — a scheme for using externally verified identities (email, OAuth, etc.) as UCAN issuers via attestations from a trusted authority.
 * [Blob Protocol](./blob.md) — allows authorized agents to store arbitrary content blobs with a storage node.
 * [did:mailto DID Method](./did-mailto.md) — a DID method for identifying principals by email address, with no central source of truth.
