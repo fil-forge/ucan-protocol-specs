@@ -34,7 +34,7 @@ This specification defines the read API of a revocation service: a service [prin
 
 A revocation record associates a revoked delegation with the `/ucan/revoke` invocation that revoked it (its _cause_) and the [path witness][UCAN revocation path witness] delegations proving the revoker was an issuer in the delegation's chain.
 
-A record's `created_at` field is the time the record was created by the revocation service — not necessarily the time the revocation was issued.
+A record's `recorded_at` field is the time the record was recorded by the revocation service — not necessarily the time the revocation was issued.
 
 ### Schema Notation
 
@@ -93,10 +93,10 @@ If `{cid}` is not a valid CID, the service MUST respond with HTTP status `400`.
 
 ```ipldsch
 type Revocation struct {
-  revoke     Link    # CID of the revoked delegation
-  path       [Bytes] # encoded path witness delegations, root first
-  cause      Bytes   # encoded /ucan/revoke invocation that revoked the delegation
-  created_at String  # RFC3339 time the record was created
+  revoke      Link    # CID of the revoked delegation
+  path        [Bytes] # encoded path witness delegations, root first
+  cause       Bytes   # encoded /ucan/revoke invocation that revoked the delegation
+  recorded_at String  # RFC3339 time the record was recorded
 }
 ```
 
@@ -105,10 +105,10 @@ type Revocation struct {
 
 ```go
 type Revocation struct {
-	Revoke    cid.Cid         `dagjsongen:"revoke"`
-	Path      [][]byte        `dagjsongen:"path"`
-	Cause     []byte          `dagjsongen:"cause"`
-	CreatedAt jsg.DagJsonTime `dagjsongen:"created_at"`
+	Revoke     cid.Cid         `dagjsongen:"revoke"`
+	Path       [][]byte        `dagjsongen:"path"`
+	Cause      []byte          `dagjsongen:"cause"`
+	RecordedAt jsg.DagJsonTime `dagjsongen:"recorded_at"`
 }
 ```
 
@@ -125,7 +125,7 @@ The `path` and `cause` fields carry the complete DAG-CBOR encoded [envelope][UCA
   "path": [
     { "/": { "bytes": "omF2AWNjYXBsL3Rlc3QvaW52b2tl" } }
   ],
-  "created_at": "2026-07-17T09:00:00Z"
+  "recorded_at": "2026-07-17T09:00:00Z"
 }
 ```
 
@@ -147,7 +147,7 @@ Each revocation is delivered as an event with:
 - `event` — the literal string `revocation`.
 - `data` — a compact [DAG-JSON] encoded record, per the schema below.
 
-Consumers SHOULD use the `created_at` of the last received record as the cursor when reconnecting.
+Consumers SHOULD use the `recorded_at` of the last received record as the cursor when reconnecting.
 
 If the service encounters an error while streaming it SHOULD emit a final event with `event` set to the literal string `error` and `data` set to a JSON object with an `error` message field, then end the stream.
 
@@ -155,10 +155,10 @@ If the service encounters an error while streaming it SHOULD emit a final event 
 
 ```ipldsch
 type FirehoseRevocation struct {
-  revoke     Link   # CID of the revoked delegation
-  path       [Link] # CIDs of the path witness delegations, root first
-  cause      Link   # CID of the /ucan/revoke invocation
-  created_at String # RFC3339 time the record was created
+  revoke      Link   # CID of the revoked delegation
+  path        [Link] # CIDs of the path witness delegations, root first
+  cause       Link   # CID of the /ucan/revoke invocation
+  recorded_at String # RFC3339 time the record was recorded
 }
 ```
 
@@ -167,10 +167,10 @@ type FirehoseRevocation struct {
 
 ```go
 type FirehoseRevocation struct {
-	Revoke    cid.Cid         `dagjsongen:"revoke"`
-	Path      []cid.Cid       `dagjsongen:"path"`
-	Cause     cid.Cid         `dagjsongen:"cause"`
-	CreatedAt jsg.DagJsonTime `dagjsongen:"created_at"`
+	Revoke     cid.Cid         `dagjsongen:"revoke"`
+	Path       []cid.Cid       `dagjsongen:"path"`
+	Cause      cid.Cid         `dagjsongen:"cause"`
+	RecordedAt jsg.DagJsonTime `dagjsongen:"recorded_at"`
 }
 ```
 
@@ -183,7 +183,7 @@ The compact record carries links only. The full witness and cause blocks for a s
 ```txt
 id: bafyreif5fzax7oygfafacvxq2ndhtkshz2av5m42hqeixea7giirdxe5dm
 event: revocation
-data: {"revoke":{"/":"bafyreiehytyi4q3t2amvf2abdlt5xnnqtaqkknf6yxhre4klpjnejlnsc4"},"path":[{"/":"bafyreiehytyi4q3t2amvf2abdlt5xnnqtaqkknf6yxhre4klpjnejlnsc4"}],"cause":{"/":"bafyreif5fzax7oygfafacvxq2ndhtkshz2av5m42hqeixea7giirdxe5dm"},"created_at":"2026-07-17T09:00:00Z"}
+data: {"revoke":{"/":"bafyreiehytyi4q3t2amvf2abdlt5xnnqtaqkknf6yxhre4klpjnejlnsc4"},"path":[{"/":"bafyreiehytyi4q3t2amvf2abdlt5xnnqtaqkknf6yxhre4klpjnejlnsc4"}],"cause":{"/":"bafyreif5fzax7oygfafacvxq2ndhtkshz2av5m42hqeixea7giirdxe5dm"},"recorded_at":"2026-07-17T09:00:00Z"}
 ```
 
 # Verifier Guidance
