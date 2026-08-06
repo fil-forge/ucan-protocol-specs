@@ -114,7 +114,7 @@ The optional `args.index` field MAY be set to the link of the [content archive][
 
 ### Add Upload Receipt
 
-Invocation MUST fail if the subject space is not provisioned with a provider _(error name `InsufficientStorage`)_.
+Invocation MUST fail if the subject space is not [provisioned with a provider] _(error name `InsufficientStorage`)_.
 
 Invocation MUST succeed otherwise. The success value is an empty object.
 
@@ -458,6 +458,7 @@ type RemoveOK struct{}
 [index]:./index.md#index-format
 [Add Index]:./index.md#add-index
 [receipt]:./ucan.md#receipt
+[provisioned with a provider]:./provider.md
 [List Uploads]:#list-uploads
 [List Upload Shards]:#list-upload-shards
 [CAR]:https://ipld.io/specs/transport/car/

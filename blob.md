@@ -230,7 +230,7 @@ Shown invocation example illustrates Alice requesting to add a 2MiB blob to her 
 
 Invocation MUST fail if any of the following is true:
 
-1. Provided subject space is not provisioned with a provider.
+1. Provided subject space is not [provisioned with a provider].
 1. Provided `blob.size` is outside of supported range.
 1. Provided `blob.digest` is not a valid [multihash].
 1. Provided `blob.digest` [multihash] hashing algorithm is not supported.
@@ -1189,6 +1189,7 @@ type RejectOK struct{}
 [Ed25519]:https://en.wikipedia.org/wiki/EdDSA#Ed25519
 [UCAN conclusion]:./ucan.md#conclusion
 [receipt]:./ucan.md#receipt
+[provisioned with a provider]:./provider.md
 [PDP protocol]:./pdp.md
 [PDP accept]:./pdp.md#pdp-accept
 [principal]:https://github.com/ucan-wg/spec#principals

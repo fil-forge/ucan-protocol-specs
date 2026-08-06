@@ -12,6 +12,7 @@ This repository contains the specs for the Forge Network UCAN protocol and assoc
 * [HTTP Header UCAN Invocation](./http-header-ucan-invocation.md) — sends UCAN containers in HTTP headers, leaving the request/response body free for other purposes.
 * [Index Protocol](./index.md) — allows authorized agents to publish verifiable claims about content-addressable data to IPNI, making it publicly queryable.
 * [PDP Protocol](./pdp.md) — allows a storage node to prove possession of stored blobs using cryptographic merkle tree commitments.
+* [Provider Protocol](./provider.md) — defines how accounts provision spaces with a provider, making storage capabilities invocable.
 * [Replication Protocol](./replication.md) — enables distributed storage of blobs across multiple nodes in the network after initial upload.
 * [Retrieval Protocol](./retrieval.md) — defines UCAN capabilities for authorizing retrieval of resources, served in the same HTTP request they are authorized in.
 * [S3 Tenant Management](./s3.md) — how tenants of an S3 compatible gateway are managed, and how S3 style credentials map to UCAN authorizations.

@@ -560,7 +560,7 @@ The `args.delegations` field MUST be set to the list of links of the delegations
 
 Invocation MUST fail if any of the following is true:
 
-1. The subject space is not provisioned with a provider _(error name `InsufficientStorage`)_.
+1. The subject space is not [provisioned with a provider] _(error name `InsufficientStorage`)_.
 1. A delegation linked from `args.delegations` is not present in the request [container][UCAN container] _(error name `DelegationNotFound`)_.
 
 Invocation MUST succeed otherwise, and the service MUST store the delegations, indexed by audience, for later retrieval with [Claim Access]. The success value is an empty object.
@@ -634,6 +634,7 @@ She sends the delegation with [Delegate Access] so it can be claimed by Bob. Whe
 [attested authority]:./attestation.md
 [receipt]:./ucan.md#receipt
 [space]:./blob.md#space
+[provisioned with a provider]:./provider.md
 [account]:#account
 [agent]:#agent
 [Request Access]:#request-access

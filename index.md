@@ -131,7 +131,7 @@ The invocation `meta` field MUST contain a [retrieval authorization] allowing th
 
 Invocation MUST fail if any of the following is true:
 
-1. Provided subject space is not provisioned with a provider _(error name `InsufficientStorage`)_.
+1. Provided subject space is not [provisioned with a provider] _(error name `InsufficientStorage`)_.
 1. Provided `index` is not stored in the subject space _(error name `IndexNotFound`)_.
 
 Invocation MUST succeed if none of the above is true. Executing the invocation, the upload service MUST publish an [Assert Index] claim for the index to the indexer, re-delegating retrieval authority for the index blob to the indexer.
@@ -377,6 +377,7 @@ The archive is stored as a blob in the space, and referenced from [Add Index] an
 [location commitment]:./blob.md#location-commitment
 [content retrieve]:./retrieval.md#content-retrieve
 [receipt]:./ucan.md#receipt
+[provisioned with a provider]:./provider.md
 [index]:#index-format
 [Index Format]:#index-format
 [retrieval authorization]:#retrieval-authorization
