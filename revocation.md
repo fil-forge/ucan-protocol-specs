@@ -132,14 +132,14 @@ The `path` and `cause` fields carry the complete DAG-CBOR encoded [envelope][UCA
 ## Revocation Firehose
 
 ```
-GET /revocations/{since}
+GET /revocations/{from}
 ```
 
-A [Server-Sent Events][SSE] stream of compact [revocation record]s, allowing a [verifier] to maintain a local revocation set without polling. `{since}` is either `0`, to stream all stored records, or an [RFC3339]/RFC3339Nano timestamp cursor, to stream records created after that time.
+A [Server-Sent Events][SSE] stream of compact [revocation record]s, allowing a [verifier] to maintain a local revocation set without polling. `{from}` is either `0`, to stream all stored records, or an [RFC3339]/RFC3339Nano timestamp cursor, to stream records recorded at or after that time. The cursor is inclusive so that a consumer resuming from the `recorded_at` of the last record it received does not miss records sharing that time.
 
 The service MUST respond with `Content-Type: text/event-stream` and `Cache-Control: no-cache`. The stream MUST first deliver stored records matching the cursor, then remain open and deliver new records as they arrive.
 
-If `{since}` is neither `0` nor a valid RFC3339 timestamp, the service MUST respond with HTTP status `400`.
+If `{from}` is neither `0` nor a valid RFC3339 timestamp, the service MUST respond with HTTP status `400`.
 
 Each revocation is delivered as an event with:
 
@@ -147,7 +147,7 @@ Each revocation is delivered as an event with:
 - `event` — the literal string `revocation`.
 - `data` — a compact [DAG-JSON] encoded record, per the schema below.
 
-Consumers SHOULD use the `recorded_at` of the last received record as the cursor when reconnecting.
+Consumers SHOULD use the `recorded_at` of the last received record as the cursor when reconnecting. Because the cursor is inclusive, records recorded at exactly that time are delivered again; consumers MUST tolerate this re-delivery, for example by deduplicating on the event `id` or applying revocations idempotently.
 
 If the service encounters an error while streaming it SHOULD emit a final event with `event` set to the literal string `error` and `data` set to a JSON object with an `error` message field, then end the stream.
 
