@@ -135,7 +135,7 @@ The `path` and `cause` fields carry the complete DAG-CBOR encoded [envelope][UCA
 GET /revocations/{from}
 ```
 
-A [Server-Sent Events][SSE] stream of compact [revocation record]s, allowing a [verifier] to maintain a local revocation set without polling. `{from}` is either `0`, to stream all stored records, or an [RFC3339]/RFC3339Nano timestamp cursor, to stream records recorded at or after that time. The cursor is inclusive so that a consumer resuming from the `recorded_at` of the last record it received does not miss records sharing that time.
+A [Server-Sent Events][SSE] stream of compact [revocation record]s, allowing a [verifier] to maintain a local revocation set without polling. `{from}` is either `0`, to stream all stored records, or a valid [RFC3339] timestamp cursor, to stream records recorded at or after that time. The cursor is inclusive so that a consumer resuming from the `recorded_at` of the last record it received does not miss records sharing that time.
 
 The service MUST respond with `Content-Type: text/event-stream` and `Cache-Control: no-cache`. The stream MUST first deliver stored records matching the cursor, then remain open and deliver new records as they arrive.
 
