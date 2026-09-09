@@ -74,8 +74,8 @@ Copy `provider.md` for a short spec and `blob.md` for a long one. In order:
   a collapsed `<details><summary>Go syntax</summary>` block holding the Go
   struct with its `cborgen` tags. DIDs and CIDs are `String` in IPLD schema;
   the Go type says `did.DID` or `cid.Cid`. Comment schema fields with `#`.
-- **Failures** are named inline where the rule is stated:
-  `_(error name `Foo`)_`. Receipt sections list them as a numbered
+- **Failures** are named inline where the rule is stated, e.g. _(error name `Foo`)_.
+  Receipt sections list them as a numbered
   "Invocation MUST fail if any of the following is true" list, then
   "Invocation MUST succeed otherwise" and what `out.ok` carries. Error names
   match the `*ErrorName` constants in libforge or the service.
