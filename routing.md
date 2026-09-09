@@ -224,8 +224,6 @@ Once a reference is set, every [Add Blob] invocation on the space is routed as d
 type UseArguments struct {
   policy optional DID # DID of the routing policy the space uses
 }
-
-type DID string
 ```
 
 <details>
