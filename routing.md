@@ -34,7 +34,7 @@ Storing a node list on every space would repeat the same list across every space
 
 ### Space
 
-A namespace, often referred to as a "space", is an owned resource that can be shared. It corresponds to a unique asymmetric cryptographic keypair and is identified by a [`did:key`] URI. See the [blob protocol][space] for the full definition.
+A namespace, often referred to as a "space", is an owned resource that can be shared. It corresponds to a unique asymmetric cryptographic keypair and is identified by a [`did:key`] URI. The [blob protocol] defines it in full under [Space][space].
 
 ### Routing Policy
 
@@ -57,8 +57,9 @@ A candidate is a storage node named in a routing policy. Every candidate MUST be
 Schemas in this document are described using [IPLD Schema] notation, accompanied by equivalent Go types whose `cborgen` tags define the wire keys. Failure values follow the `{name, message}` convention of the [receipt] spec.
 
 ```ipldsch
-# Per-node properties of a candidate. Empty; reserved for properties that
-# influence routing decisions (e.g. weight).
+# Per-node properties of a candidate. Empty: no properties are defined yet.
+# Reserved for future properties that influence routing decisions, such as a
+# per-candidate weight.
 type Candidate struct {}
 
 # The candidate set of a routing policy, keyed by storage node DID. Map keys
@@ -326,7 +327,7 @@ type UseOK struct{}
 
 For an [Add Blob] invocation on a space with a policy reference, the upload service MUST resolve the referenced policy and select a storage node from its candidates. The upload service MUST NOT route the invocation to a storage node outside the candidate set, and MUST fail the invocation rather than fall back to another node when no candidate can serve it _(error name `CandidateUnavailable`)_.
 
-The upload service MAY use any of its normal routing considerations to choose among the candidates, including availability, capacity, and weight.
+The upload service MAY use any of its normal routing considerations to choose among the candidates, including availability, capacity, and the node weights it applies to unconstrained routing. This protocol defines no per-candidate weight.
 
 An [Add Blob] invocation on a space with no policy reference is routed as if this protocol did not exist.
 
@@ -338,6 +339,7 @@ How a policy applies to replica placement under the [replication protocol] is un
 [Use Routing Policy]:#use-routing-policy
 [Routing]:#routing
 [Add Blob]:./blob.md#add-blob
+[blob protocol]:./blob.md
 [space]:./blob.md#space
 [provider protocol]:./provider.md
 [replication protocol]:./replication.md
