@@ -38,7 +38,7 @@ A namespace, often referred to as a "space", is an owned resource that can be sh
 
 ### Routing Policy
 
-A routing policy is an entity identified by a DID that owns a set of storage node DIDs, its _candidates_. It is a routing constraint for the spaces that reference it. It is a request that a particular node be selected only when the set holds a single DID.
+A routing policy is an entity identified by a DID that owns a set of storage node DIDs, its _candidates_. It is a routing constraint for the spaces that reference it. It is not a request that a particular node be selected unless the set holds a single DID.
 
 A routing policy MUST be a cryptographic keypair identified by a [`did:key`] URI, following the same pattern as a space. Authority over the policy is rooted in its key. After creating the policy, its key SHOULD issue a non-expiring delegation of `/` to the principal that will manage it, after which the private key MAY be discarded.
 
