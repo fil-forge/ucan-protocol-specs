@@ -63,9 +63,7 @@ type Candidate struct {}
 
 # The candidate set of a routing policy, keyed by storage node DID. Map keys
 # are sorted lexicographically; the map is a set, not a preference order.
-type CandidateSet struct {
-  DID: Candidate
-}
+type CandidateSet { DID: Candidate }
 
 type DID string
 ```
@@ -224,8 +222,10 @@ Once a reference is set, every [Add Blob] invocation on the space is routed as d
 
 ```ipldsch
 type UseArguments struct {
-  policy optional String # DID of the routing policy the space uses
+  policy optional DID # DID of the routing policy the space uses
 }
+
+type DID string
 ```
 
 <details>
