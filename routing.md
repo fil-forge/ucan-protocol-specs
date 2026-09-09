@@ -279,7 +279,7 @@ Clearing the reference carries no arguments:
 
 Invocation MUST fail if any of the following is true:
 
-1. The subject space is not provisioned with a provider _(error name `SpaceNotProvisioned`)_. See the [provider protocol].
+1. The subject space is not [provisioned with a provider] _(error name `InsufficientStorage`)_, the same failure every storage capability returns on an unprovisioned space.
 1. `args.policy` is present and does not identify a routing policy with a stored candidate set _(error name `UnknownPolicy`)_.
 
 Invocation MUST succeed otherwise. The success value is an empty map.
@@ -341,7 +341,7 @@ How a policy applies to replica placement under the [replication protocol] is un
 [Add Blob]:./blob.md#add-blob
 [blob protocol]:./blob.md
 [space]:./blob.md#space
-[provider protocol]:./provider.md
+[provisioned with a provider]:./provider.md
 [replication protocol]:./replication.md
 [S3 Tenant Management]:./s3.md
 [receipt]:./ucan.md#receipt
