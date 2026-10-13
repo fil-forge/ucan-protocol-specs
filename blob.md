@@ -514,7 +514,7 @@ The `body` argument MUST be an object with `digest` and `size` fields describing
 
 The receipt is a signal to the upload service to proceed with [accept blob]. A service implementation that does not require a signal from the client MAY issue the receipt itself when content is uploaded.
 
-ℹ️ The client MUST use the [UCAN conclusion] capability to deliver the receipt to the awaiting service.
+ℹ️ The client MUST use the [UCAN conclusion] capability to deliver the receipt to the awaiting service. A client that uploaded several blobs MAY deliver all of their receipts in one conclusion, and SHOULD read each blob's [accept blob receipt] from the conclusion's response container rather than polling for it.
 
 #### Put Blob Receipt Schema
 
@@ -1183,6 +1183,7 @@ type RejectOK struct{}
 [put blob receipt]:#put-blob-receipt
 [Allocate Blob]:#allocate-blob
 [Accept Blob]:#accept-blob
+[accept blob receipt]:#accept-blob-receipt
 [DID]:https://www.w3.org/TR/did-core/
 [range request]:https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 [`did:key`]:https://w3c-ccg.github.io/did-key-spec/

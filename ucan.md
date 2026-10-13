@@ -147,7 +147,7 @@ Some tasks are executed by principals that have no channel of their own to the s
 
 ```ipldsch
 type ConcludeArguments struct {
-  receipt Link # the delivered receipt invocation
+  receipts [Link] # the delivered receipt invocations
 }
 
 type ConcludeResult union {
@@ -163,7 +163,7 @@ type ConcludeOK struct {}
 
 ```go
 type ConcludeArguments struct {
-	Receipt cid.Cid `cborgen:"receipt"`
+	Receipts []cid.Cid `cborgen:"receipts"`
 }
 
 type ConcludeOK struct{}
@@ -173,17 +173,21 @@ type ConcludeOK struct{}
 
 ### Conclusion Receipt
 
-The `args.receipt` field MUST be set to the link of the delivered [receipt] invocation. Note this is the link of the signed receipt invocation, not a [task][UCAN task] link.
+The `args.receipts` field MUST be set to the links of the delivered [receipt] invocations. Note these are the links of the signed receipt invocations, not [task][UCAN task] links.
 
-The receipt itself MUST be transmitted in the request [container][UCAN container] alongside the `/ucan/conclude` invocation. Invocation MUST fail with error name `ConclusionReceiptNotFound` if the linked receipt is not present in the request container.
+One invocation delivers any number of receipts, and the field is always a list. Delivering many at once exists because a delivering agent often holds a receipt per blob of a large upload, and a round trip per receipt costs more than the work each one triggers. An empty list delivers nothing and MUST succeed.
+
+Every delivered receipt MUST be transmitted in the request [container][UCAN container] alongside the `/ucan/conclude` invocation. Invocation MUST fail with error name `ConclusionReceiptNotFound` if any linked receipt is not present in the request container.
 
 ### Conclusion Result
 
-Invocation MUST succeed if the linked receipt is present in the request container and is a valid [receipt]. The success value is an empty object.
+Invocation MUST succeed if every linked receipt is present in the request container and is a valid [receipt]. The success value is an empty object, whatever the number of receipts delivered.
+
+Delivering a receipt can cause the executor to run further tasks — the upload service invokes [`/blob/accept`][Accept Blob] on receiving an [`/http/put` receipt][put blob receipt]. The executor SHOULD return the receipts of those tasks, and any invocations they reference, in the response [container][UCAN container], so the deliverer learns each outcome without polling for it. A task that failed is reported by its own failure receipt; the conclusion itself still succeeds.
 
 ### Conclusion Example
 
-An example invocation delivering an `/http/put` receipt to the upload service:
+An example invocation delivering the `/http/put` receipts of a multi-blob upload to the upload service:
 
 ```jsonc
 {
@@ -192,14 +196,19 @@ An example invocation delivering an `/http/put` receipt to the upload service:
   "sub": "did:web:upload.example.com",
   "cmd": "/ucan/conclude",
   "args": {
-    // link to the receipt invocation, transmitted in the same container
-    "receipt": { "/": "bafy..putReceipt" }
+    // links to the receipt invocations, transmitted in the same container
+    "receipts": [
+      { "/": "bafy..putReceipt1" },
+      { "/": "bafy..putReceipt2" }
+    ]
   },
   "prf": [],
   "nonce": { "/": { "bytes": "Y29uY2x1ZGU" } },
   "exp": 1735689600
 }
 ```
+
+A single blob is the same invocation with one link in the list.
 
 [UCAN]:https://github.com/ucan-wg/spec
 [UCAN invocation]:https://github.com/ucan-wg/invocation
@@ -210,4 +219,6 @@ An example invocation delivering an `/http/put` receipt to the upload service:
 [executor]:#roles
 [receipt]:#receipt
 [blob protocol]:./blob.md
+[Accept Blob]:./blob.md#accept-blob
+[put blob receipt]:./blob.md#put-blob-receipt
 [Irakli Gozalishvili]:https://github.com/Gozala
