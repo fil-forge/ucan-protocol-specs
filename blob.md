@@ -542,7 +542,7 @@ The upload service MAY invoke the `/blob/accept` capability on the storage node 
 
 ### Accept Blob Invocation
 
-Invocation MUST either succeed when content is delivered at the allocated address or fail if the allocation expired before content was delivered.
+Invocation MUST either succeed when content is delivered at the allocated address or fail if the allocation expired before content was delivered _(error name `AllocationExpired`)_. An allocation past its expiry whose content was delivered MUST still be accepted. Invocation MUST fail if the storage node holds no allocation for the blob _(error name `AllocationNotFound`)_: the allocation was never made, was rejected, or was removed after it expired.
 
 Invocation MUST block until content is delivered. Implementation MAY resume when content is sent to the allocated address or await until the client signals that content has been delivered using the [put blob receipt], delivered with the [UCAN conclusion] capability.
 
