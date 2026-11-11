@@ -542,9 +542,9 @@ The upload service MAY invoke the `/blob/accept` capability on the storage node 
 
 ### Accept Blob Invocation
 
-Invocation MUST either succeed when content is delivered at the allocated address or fail if the allocation expired before content was delivered _(error name `AllocationExpired`)_. An allocation past its expiry whose content was delivered MUST still be accepted. Invocation MUST fail if the storage node holds no allocation for the blob _(error name `AllocationNotFound`)_: the allocation was never made, was rejected, or was removed after it expired.
+Invocation MUST succeed when content has been delivered at the allocated address, and MUST fail when it has not.
 
-Invocation MUST block until content is delivered. Implementation MAY resume when content is sent to the allocated address or await until the client signals that content has been delivered using the [put blob receipt], delivered with the [UCAN conclusion] capability.
+The upload service SHOULD invoke [Accept Blob] once the client signals that content has been delivered using the [put blob receipt], delivered with the [UCAN conclusion] capability. An invocation that fails because content has not yet been delivered to an allocation that has not expired MAY be invoked again once it has.
 
 The [Accept Blob] task MUST be invoked without a `nonce` _(zero length byte array)_, making the task idempotent: its [task][UCAN task] link is deterministic and can be independently derived by any party from the task arguments.
 
@@ -598,6 +598,14 @@ type AcceptArguments struct {
 ```
 
 ### Accept Blob Receipt
+
+Invocation MUST fail if any of the following is true:
+
+1. The storage node holds no allocation for the blob: the allocation was never made, was rejected, or was removed after it expired _(error name `AllocationNotFound`)_.
+1. Content has not been delivered and the allocation has passed its expiry _(error name `AllocationExpired`)_.
+1. Content has not been delivered and the allocation has not expired.
+
+An allocation that has passed its expiry MUST still be accepted if content has been delivered.
 
 #### Accept Blob Receipt Schema
 
