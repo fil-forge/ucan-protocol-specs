@@ -544,7 +544,7 @@ The upload service MAY invoke the `/blob/accept` capability on the storage node 
 
 Invocation MUST succeed when the storage node holds the allocation and content has been delivered at the allocated address, and MUST fail otherwise.
 
-The upload service SHOULD invoke [Accept Blob] once the client signals that content has been delivered using the [put blob receipt], delivered with the [UCAN conclusion] capability. An invocation that fails because content has not yet been delivered to an allocation that has not expired MAY be invoked again once it has.
+The upload service SHOULD invoke [Accept Blob] once the client signals that content has been delivered using the [put blob receipt], delivered with the [UCAN conclusion] capability. An invocation that fails because content has not yet been delivered to an allocation that has not expired MAY be invoked again once the content has been delivered.
 
 The [Accept Blob] task MUST be invoked without a `nonce` _(zero length byte array)_, making the task idempotent: its [task][UCAN task] link is deterministic and can be independently derived by any party from the task arguments.
 
