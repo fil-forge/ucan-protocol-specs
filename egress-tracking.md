@@ -148,7 +148,7 @@ The following example shows a `/space/egress/track` invocation sent by a storage
 
 ```jsonc
 { // "/": "bafy..track"
-  "iss": "did:key:zStorageNode",
+  "iss": "did:web:storage-node.example.com",
   "aud": "did:web:egress.example.com",
   "sub": "did:web:egress.example.com",
   "cmd": "/space/egress/track",

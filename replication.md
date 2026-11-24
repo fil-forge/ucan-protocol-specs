@@ -292,8 +292,8 @@ The `args.cause` field MUST be set to the [task][UCAN task] link of the [Replica
 ```jsonc
 { // "/": "bafy..rAlloc"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zReplicaNode",
-  "sub": "did:key:zReplicaNode",
+  "aud": "did:web:replica-node.example.com",
+  "sub": "did:web:replica-node.example.com",
   "cmd": "/blob/replica/allocate",
   "args": {
     "blob": {
@@ -388,9 +388,9 @@ The `args.cause` field MUST be set to the [task][UCAN task] link of the [Allocat
 
 ```jsonc
 { // "/": "bafy..transfer1"
-  "iss": "did:key:zReplicaNode",
-  "aud": "did:key:zReplicaNode",
-  "sub": "did:key:zReplicaNode",
+  "iss": "did:web:replica-node.example.com",
+  "aud": "did:web:replica-node.example.com",
+  "sub": "did:web:replica-node.example.com",
   "cmd": "/blob/replica/transfer",
   "args": {
     "blob": {
@@ -456,9 +456,9 @@ type TransferOK struct {
 
 ```jsonc
 {
-  "iss": "did:key:zReplicaNode",
-  "aud": "did:key:zReplicaNode",
-  "sub": "did:key:zReplicaNode",
+  "iss": "did:web:replica-node.example.com",
+  "aud": "did:web:replica-node.example.com",
+  "sub": "did:web:replica-node.example.com",
   "cmd": "/ucan/assert/receipt",
   "args": {
     // the /blob/replica/transfer task this receipt is for

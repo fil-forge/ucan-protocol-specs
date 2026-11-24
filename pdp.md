@@ -134,9 +134,9 @@ The `args.blob` field MUST be a [multihash] digest of the blob payload bytes.
 
 ```jsonc
 { // "/": "bafy..pdp"
-  "iss": "did:key:zStorageNode",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "iss": "did:web:storage-node.example.com",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/pdp/accept",
   "args": {
     // multihash of the blob as byte array
@@ -193,9 +193,9 @@ Shows an example receipt for the above `/pdp/accept` invocation. A [receipt] is 
 
 ```jsonc
 {
-  "iss": "did:key:zStorageNode",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "iss": "did:web:storage-node.example.com",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/ucan/assert/receipt",
   "args": {
     // the /pdp/accept task this receipt is for
@@ -260,8 +260,8 @@ The `args.blob` field MUST be a [multihash] digest of the blob payload bytes.
 ```jsonc
 { // "/": "bafy..info"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/pdp/info",
   "args": {
     // multihash of the blob as byte array
@@ -323,9 +323,9 @@ An example receipt for the above `/pdp/info` invocation:
 
 ```jsonc
 {
-  "iss": "did:key:zStorageNode",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "iss": "did:web:storage-node.example.com",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/ucan/assert/receipt",
   "args": {
     // the /pdp/info task this receipt is for

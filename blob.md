@@ -38,11 +38,17 @@ There are several distinct roles that [principal]s may assume in this specificat
 | Subject      | Principal whose authority a UCAN concerns. Every proof chain is rooted in a delegation issued by the subject. Specified in the `sub` field. |
 | Executor     | Principal that carries out an invocation and issues a [receipt] for it.                                                                  |
 | Upload Service | A service [principal] that coordinates the blob storage protocol between agents and storage nodes.                                     |
-| Storage Node | A [principal] that stores blob content and issues [location commitment]s for it.                                                        |
+| Storage Node | A [principal] that stores blob content and issues [location commitment]s for it. See [Storage Node][storage node].                      |
 
 ### Space
 
 A namespace, often referred as a "space", is an owned resource that can be shared. It corresponds to a unique asymmetric cryptographic keypair and is identified by a [`did:key`] URI. A space is the [subject] of every capability a user exercises in this protocol.
+
+### Storage Node
+
+A storage node is identified by a [`did:web`] DID derived from the public URL it serves requests at. The DID names the host of that URL, and the port when it is not the default for HTTPS. It has no path: a storage node served at `https://storage-node.example.com` is identified by `did:web:storage-node.example.com`.
+
+A storage node MUST serve its DID document at `/.well-known/did.json` on that host. The document lists the public key the storage node signs with. A UCAN issued by a storage node is verified by resolving the DID document of its issuer and checking the signature against a key the document lists.
 
 ### Blob
 
@@ -347,8 +353,8 @@ The `args.cause` field MUST be set to the [task][UCAN task] link of the [Add Blo
 ```jsonc
 { // "/": "bafy..alloc"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/blob/allocate",
   "args": {
     // space where memory is allocated
@@ -578,8 +584,8 @@ type AcceptArguments struct {
 ```jsonc
 { // "/": "bafy..accept"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/blob/accept",
   "args": {
     "space": "did:key:zAliceSpace",
@@ -645,7 +651,7 @@ A location commitment represents a commitment from the issuer to the audience th
 
 ### Location Commitment Invocation
 
-A location commitment is issued as an [invocation][UCAN invocation] of the `/assert/location` capability, signed by the storage node — it is a verifiable claim, not a task to be executed. Consumers of location commitments SHOULD verify the signature and that the issuer is a storage node they recognize.
+A location commitment is issued as an [invocation][UCAN invocation] of the `/assert/location` capability, signed by the storage node — it is a verifiable claim, not a task to be executed. Consumers of location commitments SHOULD verify the signature against the DID document of the issuer, as described under [Storage Node][storage node], and that the issuer is a storage node they recognize.
 
 #### Location Commitment Arguments Schema
 
@@ -688,13 +694,15 @@ The `args.location` field MUST be set to a list of URLs from which the committed
 
 The optional `args.range` field, if present, MUST describe the byte range at which the content can be read from the committed locations. `start` is the offset of the first byte and the optional `end` is the offset of the last byte _(inclusive)_.
 
+The `iat` field MUST be set to the time the commitment was issued.
+
 #### Location Commitment Example
 
 ```jsonc
 { // "/": "bafy..site" (invocation link)
-  "iss": "did:key:zStorageNode",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "iss": "did:web:storage-node.example.com",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/assert/location",
   "args": {
     // space the content was added to
@@ -712,7 +720,9 @@ The optional `args.range` field, if present, MUST describe the byte range at whi
   "prf": [],
   "nonce": { "/": { "bytes": "c2l0ZQ" } },
   // does not expire
-  "exp": null
+  "exp": null,
+  // time the commitment was issued
+  "iat": 1735689500
 }
 ```
 
@@ -967,8 +977,8 @@ The `args.cause` field MUST be set to the [task][UCAN task] link of the [Remove 
 ```jsonc
 { // "/": "bafy..release"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/blob/release",
   "args": {
     // space releasing its claim
@@ -1131,8 +1141,8 @@ The `args.digest` field MUST be a [multihash] digest of the blob payload bytes.
 ```jsonc
 { // "/": "bafy..reject"
   "iss": "did:web:upload.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/blob/reject",
   "args": {
     // space whose allocation is dropped
@@ -1178,6 +1188,7 @@ type RejectOK struct{}
 [IPLD Schema]:https://ipld.io/docs/schemas/
 [multicodec]:https://github.com/multiformats/multicodec
 [space]:#space
+[storage node]:#storage-node
 [subject]:#roles
 [blob lifecycle]:#blob-lifecycle
 [location commitment]:#location-commitment
@@ -1195,6 +1206,7 @@ type RejectOK struct{}
 [DID]:https://www.w3.org/TR/did-core/
 [range request]:https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 [`did:key`]:https://w3c-ccg.github.io/did-key-spec/
+[`did:web`]:https://w3c-ccg.github.io/did-method-web/
 [Ed25519]:https://en.wikipedia.org/wiki/EdDSA#Ed25519
 [UCAN conclusion]:./ucan.md#conclusion
 [receipt]:./ucan.md#receipt
