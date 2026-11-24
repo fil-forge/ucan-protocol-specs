@@ -108,7 +108,7 @@ The following invocation example illustrates Alice requesting to retrieve 1,637 
 ```jsonc
 { // "/": "bafy..retrieve"
   "iss": "did:key:zAlice",
-  "aud": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
   "sub": "did:key:zAliceSpace",
   "cmd": "/content/retrieve",
   "args": {
@@ -203,8 +203,8 @@ The `args.blob.digest` field MUST be a [multihash] digest of the blob payload by
 ```jsonc
 { // "/": "bafy..blobRetrieve"
   "iss": "did:web:indexer.example.com",
-  "aud": "did:key:zStorageNode",
-  "sub": "did:key:zStorageNode",
+  "aud": "did:web:storage-node.example.com",
+  "sub": "did:web:storage-node.example.com",
   "cmd": "/blob/retrieve",
   "args": {
     "blob": {

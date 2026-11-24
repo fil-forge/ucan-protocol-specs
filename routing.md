@@ -151,8 +151,8 @@ A policy manager holding the policy's root delegation replaces the candidate set
   "args": {
     // storage nodes writes may be routed to
     "candidates": {
-      "did:key:zNode1": {},
-      "did:key:zNode2": {}
+      "did:web:node1.example.com": {},
+      "did:web:node2.example.com": {}
     }
   },
   "prf": [{ "/": "bafy..dlgPolicyManager" }],
